@@ -1,0 +1,15 @@
+{
+  "name": "paranoid",
+  "version": "1.0.0",
+  "scripts": {
+    "add-cli": "node ./scripts/add-cli.mjs",
+    "@modelcontextprotocol/server-sequential-thinking": "npm exec --offline --no -- @modelcontextprotocol/server-sequential-thinking",
+    "@playwright/mcp": "npm exec --offline --no -- @playwright/mcp",
+    "@upstash/context7-mcp": "npm exec --offline --no -- @upstash/context7-mcp"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server-sequential-thinking": "2025.12.18",
+    "@playwright/mcp": "0.0.70",
+    "@upstash/context7-mcp": "2.1.8"
+  }
+}
