@@ -1,0 +1,14 @@
+[project]
+name = "paranoid-tools"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.uv]
+package = false
+default-groups = []
+
+[dependency-groups]
+tools = [
+    "mcp-server-time==2026.1.26",
+]

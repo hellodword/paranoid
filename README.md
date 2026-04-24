@@ -10,15 +10,15 @@ I looked into whether `npm` or `npx` could lock both the package version and the
 
 This is only one small part of a much broader concern I have about the agent tooling ecosystem. I plan to keep documenting issues, mitigations, and safer patterns as I continue digging.
 
-## Usage
+## npm / npx workaround
 
-1. add audited package
+1. Add an audited package:
 
 ```shell
 npm run add-cli "@upstash/context7-mcp@2.1.8"
 ```
 
-2. codex config:
+2. Replace `npx` with a repo-local `npm run` entry:
 
 Original:
 
@@ -45,18 +45,87 @@ Now:
 [mcp_servers.context7]
 command = "npm"
 args = [
-  "-C","/path/to/paranoid",
-  "run" ,"--silent",
+  "-C", "/path/to/paranoid",
+  "run", "--silent",
   "@upstash/context7-mcp"
 ]
 
 [mcp_servers.playwright]
 command = "npm"
 args = [
-  "-C","/path/to/paranoid",
-  "run" ,"--silent",
+  "-C", "/path/to/paranoid",
+  "run", "--silent",
   "@playwright/mcp",
   "--",
   "--cdp-endpoint", "http://1.2.3.4:9222"
 ]
 ```
+
+## uv / uvx workaround
+
+This repo also includes a `uvx` replacement based on `pyproject.toml` and `uv.lock`.
+The lockfile remains the source of truth, but Python tools are installed into a repo-local
+vendor directory instead of `.venv`. That avoids copied-venv breakage when the whole directory
+is moved to a different path.
+
+1. Add an audited Python CLI package with an exact pin:
+
+```shell
+uv --directory /path/to/paranoid run --no-project python scripts/add_uv_cli.py mcp-server-time==2026.1.26
+```
+
+2. Build or refresh the vendored tool directory:
+
+```shell
+uv --directory /path/to/paranoid run --no-project python scripts/sync_uv_tools.py
+```
+
+3. Replace `uvx ...` with `uv --directory ... run --no-project --offline python scripts/run_uv_tool.py ...`:
+
+Original:
+
+```toml
+[mcp_servers.mcp-server-time]
+command = "uvx"
+args = [
+  "mcp-server-time"
+]
+```
+
+Now:
+
+```toml
+[mcp_servers.mcp-server-time]
+command = "uv"
+args = [
+  "--directory", "/path/to/paranoid",
+  "run",
+  "--no-project",
+  "--offline",
+  "python",
+  "scripts/run_uv_tool.py",
+  "mcp-server-time"
+]
+```
+
+If the package name and executable name differ, add the package name but run the executable name.
+For example, add `httpie==3.2.4`, then run `http`:
+
+```shell
+uv --directory /path/to/paranoid run --no-project --offline python scripts/run_uv_tool.py http --version
+```
+
+`scripts/add_uv_cli.py` only accepts exact pins in the form `package==version`.
+That is intentional. Allowing floating specs such as `package`, `>=1.0`, or `@latest`
+would defeat the point of this repository.
+
+The repo-local `.uv-tools` directory is the runnable artifact. Copying `repo + .uv-tools`
+to a new path is enough to keep commands working. If you also copy `.uv-cache`, then the target
+environment can rebuild `.uv-tools` offline:
+
+```shell
+uv --directory /path/to/paranoid run --no-project --offline python scripts/sync_uv_tools.py --offline
+```
+
+The vendored artifacts are platform and Python-version specific. This repo pins Python `3.13`
+via `.python-version`, and expects the target environment to provide a compatible interpreter.
