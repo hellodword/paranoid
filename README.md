@@ -4,7 +4,7 @@
 
 The current LLM agent ecosystem makes me uneasy. Too much of it relies on unsafe defaults, and some of those defaults have become widely accepted as normal.
 
-A simple example: the official documentation for many popular MCP tools recommends running commands like `npx -y foo@latest`. That may be convenient, but it also means executing whatever happens to be published as `latest` at that moment. For security-sensitive workflows, especially those involving agents, this is not a tradeoff I am comfortable with.
+A simple example: the official documentation for many popular MCP tools recommends running commands like `npx -y foo@latest`. That may be convenient, but it also means executing whatever happens to be published as `latest` at that moment. For security-sensitive workflows, especially those involving agents, this is not a tradeoff I am comfortable with. At the same time, solutions like [toolhive](https://github.com/stacklok/toolhive) feel too heavyweight for my use case, for reasons I may explain in the future.
 
 I looked into whether `npm` or `npx` could lock both the package version and the package hash in a single command. As far as I can tell, they cannot. I found a workaround.
 
