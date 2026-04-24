@@ -10,6 +10,28 @@ I looked into whether `npm` or `npx` could lock both the package version and the
 
 This is only one small part of a much broader concern I have about the agent tooling ecosystem. I plan to keep documenting issues, mitigations, and safer patterns as I continue digging.
 
+## Threat Model
+
+### Trust assumption
+
+When I choose to use an MCP server, I am making an explicit trust decision about a specific version of that software. I assume that version has already been reviewed to a level I consider acceptable, whether that review was performed by a trusted organization or by me directly.
+
+### Security objective
+
+My goal is not to eliminate all software risk. My goal is to prevent silent drift from a reviewed version to newly published code through `latest`, floating version ranges, or any other implicit resolution behavior. I want upgrades to happen only when I choose them.
+
+### Accepted risk
+
+I explicitly accept the possibility that a pinned and previously reviewed version may still contain vulnerabilities, design flaws, or audit misses. Locking a version does not make it safe. It only preserves the review boundary I intended to trust.
+
+### Upgrade policy
+
+Every version change is treated as a new trust decision. In practice, that means every upgrade should be accompanied by a fresh audit, review, or other deliberate approval step before the new version is allowed to run.
+
+### Non-goals
+
+This project does not certify that a locked version is secure. It does not replace sandboxing, provenance verification, or broader supply-chain controls. It is specifically intended to make upgrades explicit and reviewable, not to solve every security problem in the MCP ecosystem.
+
 ## npm / npx workaround
 
 1. Add an audited package:
